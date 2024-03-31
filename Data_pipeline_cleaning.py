@@ -1,5 +1,6 @@
 # importing dependencies
 import pandas as pd
+import docx2txt
 
 df_temp = pd.read_excel("census_2011.xlsx")
 #print(df_temp.head())
@@ -21,7 +22,6 @@ df_temp.rename(columns =renamed_col_dict,inplace=True)
 print(df_temp.columns)
 
 #Task 2: Task 2: Rename State/UT Names
-
 def rename_state(name):
     name_lst = name.split()
     cnvrtd_name_lst = []
@@ -35,3 +35,15 @@ def rename_state(name):
 
 df_temp["State/UT"] = df_temp["State/UT"].apply(rename_state)
 print(df_temp['State/UT'].unique())
+
+#Task 3: New State/UT formation
+
+my_text = docx2txt.process("Telangana.docx")
+
+def rename_state(df_temp):
+    for nme in my_text.split():
+        df_temp.loc[df_temp['District'] == nme, 'State/UT'] ="Telangana"
+    df_temp.loc[df_temp['District'].isin (['Leh(Ladakh)','Kargil']), 'State/UT'] ="Ladakh"
+
+rename_state(df_temp)
+print(df_temp['District'].loc[df_temp['State/UT'] .isin (['Ladakh','Telangana'])])

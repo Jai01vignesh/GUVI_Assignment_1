@@ -19,3 +19,19 @@ renamed_col_dict ={'District code':'District_code',
                    'Age not stated': 'Age_Not_Stated'}
 df_temp.rename(columns =renamed_col_dict,inplace=True)
 print(df_temp.columns)
+
+#Task 2: Task 2: Rename State/UT Names
+
+def rename_state(name):
+    name_lst = name.split()
+    cnvrtd_name_lst = []
+    for nme in name_lst:
+        if nme  == "AND":
+            cnvrtd_name_lst.append(nme.lower())
+        else:
+            cnvrtd_name_lst.append(nme.capitalize())
+    return(" ".join(cnvrtd_name_lst))
+
+
+df_temp["State/UT"] = df_temp["State/UT"].apply(rename_state)
+print(df_temp['State/UT'].unique())

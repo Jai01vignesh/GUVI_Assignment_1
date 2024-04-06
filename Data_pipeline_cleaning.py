@@ -76,11 +76,11 @@ def impute_missing_values(total,col1,col2,col3,col4):
     
     return col1, col2, col3, col4
 
-print(df_temp.isnull().sum().sum())
+print(df_temp.isnull().sum(axis=0))
 df_temp[['Population','Male','Female']] = df_temp.apply(lambda row :impute_missing_values1(row['Population'],row['Male'],row['Female']),axis=1,result_type= 'expand')
 df_temp[['Literate','Literate_Male','Literate_Female']] = df_temp.apply(lambda row :impute_missing_values1(row['Literate'],row['Literate_Male'],row['Literate_Female']),axis=1,result_type= 'expand')
 df_temp[['Households','Households_Rural','Households_Urban']] = df_temp.apply(lambda row :impute_missing_values1(row['Households'],row['Households_Rural'],row['Households_Urban']),axis=1,result_type= 'expand')
 df_temp[['Young_and_Adult','Middle_Aged','Senior_Citizen','Age_Not_Stated']] = df_temp.apply(lambda row :impute_missing_values(row['Population'],row['Young_and_Adult'],row['Middle_Aged'],row['Senior_Citizen'],row['Age_Not_Stated']),axis=1,result_type= 'expand')
 
-print(df_temp.isnull().sum().sum())
+print(df_temp.isnull().sum(axis=0))
 #df_temp.to_csv("1.csv")

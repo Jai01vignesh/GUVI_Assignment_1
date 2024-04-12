@@ -52,118 +52,124 @@ def rename_state(df_temp):
 
 rename_state(df_temp)
 #-Ans print(df_temp['District'].loc[df_temp['State/UT'] .isin (['Ladakh','Telangana'])])
-
+print(df_temp.isnull().sum(axis=0).sum())
 #Task 4: Find and process Missing Data
-def impute_missing_values1(total,col1,col2):
-    if total != total:
-       total = col1 + col2
-    elif col1 != col1:
-        col1 = total - col2
-    elif col2 != col2:
-        col2 = total - col1
-    else:
-        total, col1, col2
+def fill_missing_values(df_temp):
+    if df_temp['Population'] != df_temp['Population'] :
+        if df_temp['Male'] == df_temp['Male'] and df_temp['Female'] == df_temp['Female']:
+            df_temp['Population'] = df_temp['Male'] + df_temp['Female']
+        elif df_temp['Main_Workers'] == df_temp['Main_Workers']and df_temp['Marginal_Workers'] == df_temp['Marginal_Workers']and df_temp['Non_Workers'] == df_temp['Non_Workers']:
+            df_temp['Population'] = df_temp['Main_Workers'] + df_temp['Marginal_Workers']+ df_temp['Non_Workers']
     
-    return total, col1, col2
+    if df_temp['Male'] != df_temp['Male'] :
+        if df_temp['Population'] == df_temp['Population']and df_temp['Female'] == df_temp['Female']:
+            df_temp['Male'] = df_temp['Population'] - df_temp['Female']
+
+    if df_temp['Female'] != df_temp['Female'] :
+        if df_temp['Population'] == df_temp['Population']and df_temp['Male'] == df_temp['Male']:
+            df_temp['Female'] = df_temp['Population'] - df_temp['Male']
 
 
-def impute_missing_values(total,col1,col2,col3,col4):
-    if  col1 != col1:
-        col1 = total - col2 - col3 - col4
-    elif col2 != col2:
-        col2 = total - col1 - col3 - col4
-    elif col3 != col3:
-        col3 = total - col1 - col2 - col4
-    elif col4 != col4:
-        col4 = total - col1 - col2 - col3
-    else:
-        col1, col2, col3, col4
+
+    if df_temp['Literate'] != df_temp['Literate'] and  df_temp['Literate_Female'] == df_temp['Literate_Female'] and df_temp['Literate_Male'] == df_temp['Literate_Male']:
+        df_temp['Literate']  = df_temp['Literate_Male'] + df_temp['Literate_Female']
+    elif df_temp['Literate'] == df_temp['Literate'] and df_temp['Literate_Male'] == df_temp['Literate_Male']:
+         df_temp['Literate_Female'] = df_temp['Literate'] - df_temp['Literate_Male']
+    elif df_temp['Literate'] == df_temp['Literate'] and df_temp['Literate_Female'] == df_temp['Literate_Female']:
+         df_temp['Literate_Male'] = df_temp['Literate'] - df_temp['Literate_Female']       
+
+
+    if df_temp['Female_SC'] == df_temp['Female_SC'] and df_temp['Male_SC'] == df_temp['Male_SC'] and df_temp['SC'] != df_temp['SC']:
+        df_temp['SC']  = df_temp['Male_SC'] + df_temp['Female_SC']
+    elif df_temp['SC'] == df_temp['SC'] and df_temp['Male_SC'] == df_temp['Male_SC']:
+         df_temp['Female_SC'] = df_temp['SC'] - df_temp['Male_SC']
+    elif df_temp['SC'] == df_temp['SC'] and df_temp['Female_SC'] == df_temp['Female_SC']:
+         df_temp['Male_SC'] = df_temp['SC'] - df_temp['Female_SC']
+
+
+
+    if df_temp['ST'] != df_temp['ST'] and df_temp['Female_ST'] == df_temp['Female_ST'] and df_temp['Male_ST'] == df_temp['Male_ST']:
+            df_temp['ST']  = df_temp['Male_ST'] + df_temp['Female_ST']
+    elif df_temp['ST'] == df_temp['ST'] and df_temp['Male_ST'] == df_temp['Male_ST']:
+            df_temp['Female_ST'] = df_temp['ST'] - df_temp['Male_ST']
+    elif df_temp['ST'] == df_temp['ST'] and df_temp['Female_ST'] == df_temp['Female_ST']:
+            df_temp['Male_ST'] = df_temp['ST'] - df_temp['Female_ST']      
+            
+
+
+
+   
+    if df_temp['Workers'] != df_temp['Workers'] and df_temp['Main_Workers'] == df_temp['Main_Workers'] and df_temp['Marginal_Workers'] == df_temp['Marginal_Workers']:
+        df_temp['Workers'] = df_temp['Main_Workers'] + df_temp['Marginal_Workers']
+    elif df_temp['Cultivator_Workers'] == df_temp['Cultivator_Workers']and df_temp['Agricultural_Workers'] == df_temp['Agricultural_Workers']and df_temp['Household_Workers'] == df_temp['Household_Workers']and df_temp['Other_Workers'] == df_temp['Other_Workers']:
+        df_temp['Workers'] = df_temp['Cultivator_Workers'] + df_temp['Agricultural_Workers']+ df_temp['Household_Workers']+ df_temp['Other_Workers']
+    elif df_temp['Non_Workers'] == df_temp['Non_Workers']:
+        df_temp['Workers'] = df_temp['Population'] - df_temp['Non_Workers']
+
+    if df_temp['Main_Workers'] != df_temp['Main_Workers'] and df_temp['Marginal_Workers'] == df_temp['Marginal_Workers']and df_temp['Workers'] == df_temp['Workers']:
+        df_temp['Main_Workers'] = df_temp['Workers'] - df_temp['Marginal_Workers']
+
+    if df_temp['Marginal_Workers'] != df_temp['Marginal_Workers'] and df_temp['Main_Workers'] == df_temp['Main_Workers']and df_temp['Workers'] == df_temp['Workers']:
+        df_temp['Marginal_Workers'] = df_temp['Workers'] - df_temp['Main_Workers']
+
+    df_temp['Non_Workers'] = df_temp['Population'] - df_temp['Workers']
+
+    df_temp['Male_Workers'] = df_temp['Workers'] - df_temp['Female_Workers']
+    df_temp['Female_Workers'] = df_temp['Workers'] - df_temp['Male_Workers']
+
+    if df_temp['Workers'] == df_temp['Workers']: 
+        if df_temp['Cultivator_Workers'] != df_temp['Cultivator_Workers'] and df_temp['Agricultural_Workers'] == df_temp['Agricultural_Workers']and df_temp['Household_Workers'] == df_temp['Household_Workers']and df_temp['Other_Workers'] == df_temp['Other_Workers']:
+            df_temp['Cultivator_Workers'] = df_temp['Workers']- df_temp['Agricultural_Workers'] - df_temp['Household_Workers'] - df_temp['Other_Workers']
+        elif df_temp['Agricultural_Workers'] != df_temp['Agricultural_Workers'] and df_temp['Cultivator_Workers'] == df_temp['Cultivator_Workers']and df_temp['Household_Workers'] == df_temp['Household_Workers']and df_temp['Other_Workers'] == df_temp['Other_Workers']:
+            df_temp['Agricultural_Workers'] = df_temp['Workers']- df_temp['Cultivator_Workers'] - df_temp['Household_Workers'] - df_temp['Other_Workers']
+        elif df_temp['Household_Workers'] != df_temp['Household_Workers'] and df_temp['Agricultural_Workers'] == df_temp['Agricultural_Workers']and df_temp['Cultivator_Workers'] == df_temp['Cultivator_Workers']and df_temp['Other_Workers'] == df_temp['Other_Workers']:
+            df_temp['Household_Workers'] = df_temp['Workers']- df_temp['Agricultural_Workers'] - df_temp['Cultivator_Workers'] - df_temp['Other_Workers']
+        elif df_temp['Other_Workers'] != df_temp['Other_Workers'] and df_temp['Agricultural_Workers'] == df_temp['Agricultural_Workers']and df_temp['Household_Workers'] == df_temp['Household_Workers']and df_temp['Cultivator_Workers'] == df_temp['Cultivator_Workers']:
+            df_temp['Other_Workers'] = df_temp['Workers']- df_temp['Agricultural_Workers'] - df_temp['Household_Workers'] - df_temp['Cultivator_Workers']
+
     
-    return col1, col2, col3, col4
+    if df_temp['Hindus'] == df_temp['Hindus'] and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Religion_Not_Stated'] =  df_temp['Population'] -df_temp['Hindus'] - df_temp['Muslims']- df_temp['Christians'] -df_temp['Sikhs'] - df_temp['Buddhists']- df_temp['Jains'] -df_temp['Others_Religions']
+    elif df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Hindus'] =  df_temp['Population'] -df_temp['Religion_Not_Stated'] - df_temp['Muslims'] - df_temp['Christians'] -df_temp['Sikhs'] - df_temp['Buddhists']- df_temp['Jains'] -df_temp['Others_Religions']
+    elif df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated']and df_temp['Hindus'] == df_temp['Hindus']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Muslims'] =  df_temp['Population'] -df_temp['Religion_Not_Stated'] - df_temp['Hindus'] - df_temp['Christians'] - df_temp['Sikhs'] - df_temp['Buddhists'] - df_temp['Jains'] - df_temp['Others_Religions']
+    elif df_temp['Hindus'] == df_temp['Hindus']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Christians'] =  df_temp['Population'] -df_temp['Hindus'] - df_temp['Muslims'] - df_temp['Religion_Not_Stated'] - df_temp['Sikhs'] - df_temp['Buddhists'] - df_temp['Jains'] - df_temp['Others_Religions']
+    elif df_temp['Hindus'] == df_temp['Hindus']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Sikhs'] =  df_temp['Population'] -df_temp['Religion_Not_Stated'] - df_temp['Muslims'] - df_temp['Christians'] - df_temp['Hindus'] - df_temp['Buddhists'] - df_temp['Jains'] - df_temp['Others_Religions']
+    elif df_temp['Hindus'] == df_temp['Hindus']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Buddhists'] =  df_temp['Population'] -df_temp['Religion_Not_Stated'] - df_temp['Muslims'] - df_temp['Christians'] - df_temp['Sikhs'] - df_temp['Hindus'] - df_temp['Jains'] - df_temp['Others_Religions']
+    elif df_temp['Hindus'] == df_temp['Hindus']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated']and df_temp['Others_Religions'] == df_temp['Others_Religions']:
+         df_temp['Jains'] =  df_temp['Population'] -df_temp['Religion_Not_Stated'] - df_temp['Muslims'] - df_temp['Christians'] - df_temp['Sikhs'] - df_temp['Buddhists'] - df_temp['Hindus'] - df_temp['Others_Religions']
+    elif df_temp['Hindus'] == df_temp['Hindus']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated']:
+         df_temp['Others_Religions'] =  df_temp['Population'] -df_temp['Hindus'] - df_temp['Muslims'] - df_temp['Christians'] - df_temp['Sikhs'] - df_temp['Buddhists'] - df_temp['Jains'] - df_temp['Religion_Not_Stated']
 
-def impute_missing_values2(total,col1,col2,col3,col4,col5):
-    if  col1 != col1:
-        col1 = total - col2 - col3 - col4- col5
-    elif col2 != col2:
-        col2 = total - col1 - col3 - col4- col5
-    elif col3 != col3:
-        col3 = total - col1 - col2 - col4- col5
-    elif col4 != col4:
-        col4 = total - col1 - col2 - col3- col5
-    elif col5 != col5:
-        col5 = total - col1 - col2 - col3 - col4
-    else:
-        col1, col2, col3, col4,col5
+    if df_temp['Households_with_Telephone_Mobile_Phone'] != df_temp['Households_with_Telephone_Mobile_Phone'] :
+        if df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Both'] == df_temp['Households_with_Telephone_Mobile_Phone_Both']:
+            df_temp['Households_with_Telephone_Mobile_Phone'] = df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] + df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] + df_temp['Households_with_Telephone_Mobile_Phone_Both']
     
-    return col1, col2, col3, col4,col5
-
-
-
-def impute_missing_values3(total,col1,col2,col3,col4,col5,col6,col7,col8):
-    if  total != total:
-        total =col1 + col2 + col3 + col4 + col5 + col6+col7 +col8
-    elif col1 != col1:
-        col1 = total - col2 - col3 - col4- col5- col6-col7 -col8
-    elif col2 != col2:
-        col2 = total - col1 - col3 - col4- col5- col6-col7 -col8
-    elif col3 != col3:
-        col3 = total - col1 - col2 - col4- col5- col6-col7 -col8
-    elif col4 != col4:
-        col4 = total - col1 - col2 - col3- col5- col6-col7-col8
-    elif col5 != col5:
-        col5 = total - col1 - col2 - col3 - col4- col6-col7 -col8
-    elif col6 != col6:
-        col6 = total - col1 - col2 - col3 - col4- col5-col7 -col8
-    elif col7 != col7:
-        col7 = total - col1 - col2 - col3 - col4- col5 -col6 - col8
-    elif col8 != col8:
-        col8 = total - col1 - col2 - col3 - col4- col5 - col6 -col7
-    else:
-        total,col1, col2, col3, col4, col5, col6, col7, col8
+    if df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] != df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] :
+         if df_temp['Households_with_Telephone_Mobile_Phone'] == df_temp['Households_with_Telephone_Mobile_Phone'] and df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Both'] == df_temp['Households_with_Telephone_Mobile_Phone_Both']:
+            df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] = df_temp['Households_with_Telephone_Mobile_Phone'] - df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] -df_temp['Households_with_Telephone_Mobile_Phone_Both']
+    elif df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] != df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] :
+         if df_temp['Households_with_Telephone_Mobile_Phone'] == df_temp['Households_with_Telephone_Mobile_Phone'] and df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Landline_only']:
+            df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] = df_temp['Households_with_Telephone_Mobile_Phone'] - df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] -df_temp['Households_with_Telephone_Mobile_Phone_Both']
+    elif df_temp['Households_with_Telephone_Mobile_Phone_Both'] != df_temp['Households_with_Telephone_Mobile_Phone_Both'] :
+         if df_temp['Households_with_Telephone_Mobile_Phone'] == df_temp['Households_with_Telephone_Mobile_Phone'] and df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Landline_only']:
+            df_temp['Households_with_Telephone_Mobile_Phone_Both'] = df_temp['Households_with_Telephone_Mobile_Phone'] - df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] -df_temp['Households_with_Telephone_Mobile_Phone_Landline_only']
     
-    return total,col1, col2, col3, col4, col5, col6, col7, col8
+    if df_temp['Total_Education'] != df_temp['Total_Education'] and df_temp['Illiterate_Education'] == df_temp['Illiterate_Education']and df_temp['Literate_Education'] == df_temp['Literate_Education']:
+        df_temp['Total_Education'] = df_temp['Literate_Education'] + df_temp['Illiterate_Education']
+    elif df_temp['Illiterate_Education'] != df_temp['Illiterate_Education'] and df_temp['Total_Education'] == df_temp['Total_Education']and df_temp['Literate_Education'] == df_temp['Literate_Education']:
+        df_temp['Illiterate_Education'] = df_temp['Total_Education'] - df_temp['Literate_Education'] 
+    elif df_temp['Literate_Education'] != df_temp['Literate_Education'] and df_temp['Total_Education'] == df_temp['Total_Education']and df_temp['Illiterate_Education'] == df_temp['Illiterate_Education']:
+            df_temp['Literate_Education'] = df_temp['Total_Education'] - df_temp['Illiterate_Education'] 
 
 
-def impute_missing_values4(total,col1,col2,col3,col4,col5,col6,col7):
-    if  total != total:
-        total =col1 + col2 + col3 + col4 + col5 + col6+col7 
-    elif col1 != col1:
-        col1 = total - col2 - col3 - col4- col5- col6-col7
-    elif col2 != col2:
-        col2 = total - col1 - col3 - col4- col5- col6-col7 
-    elif col3 != col3:
-        col3 = total - col1 - col2 - col4- col5- col6-col7 
-    elif col4 != col4:
-        col4 = total - col1 - col2 - col3- col5- col6-col7
-    elif col5 != col5:
-        col5 = total - col1 - col2 - col3 - col4- col6-col7 
-    elif col6 != col6:
-        col6 = total - col1 - col2 - col3 - col4- col5-col7
-    elif col7 != col7:
-        col7 = total - col1 - col2 - col3 - col4- col5 -col6 
-    else:
-        total,col1, col2, col3, col4, col5, col6, col7
-    
-    return total,col1, col2, col3, col4, col5, col6, col7
+    return df_temp
 
 
-print(df_temp.isnull().sum(axis=0))
-df_temp[['Population','Male','Female']] = df_temp.apply(lambda row :impute_missing_values1(row['Population'],row['Male'],row['Female']),axis=1,result_type= 'expand')
-df_temp[['Literate','Literate_Male','Literate_Female']] = df_temp.apply(lambda row :impute_missing_values1(row['Literate'],row['Literate_Male'],row['Literate_Female']),axis=1,result_type= 'expand')
-df_temp[['Households','Households_Rural','Households_Urban']] = df_temp.apply(lambda row :impute_missing_values1(row['Households'],row['Households_Rural'],row['Households_Urban']),axis=1,result_type= 'expand')
-df_temp[['SC','Male_SC','Female_SC']] = df_temp.apply(lambda row :impute_missing_values1(row['SC'],row['Male_SC'],row['Female_SC']),axis=1,result_type= 'expand')
-df_temp[['ST','Male_ST','Female_ST']] = df_temp.apply(lambda row :impute_missing_values1(row['ST'],row['Male_ST'],row['Female_ST']),axis=1,result_type= 'expand')
-df_temp[['Workers','Male_Workers','Female_Workers']] = df_temp.apply(lambda row :impute_missing_values1(row['Workers'],row['Male_Workers'],row['Female_Workers']),axis=1,result_type= 'expand')
-df_temp[['Workers','Main_Workers','Marginal_Workers']] = df_temp.apply(lambda row :impute_missing_values1(row['Workers'],row['Main_Workers'],row['Marginal_Workers']),axis=1,result_type= 'expand')
-df_temp[['Total_Education','Literate_Education','Illiterate_Education']] = df_temp.apply(lambda row :impute_missing_values1(row['Total_Education'],row['Literate_Education'],row['Illiterate_Education']),axis=1,result_type= 'expand')
-
-
-df_temp[['Young_and_Adult','Middle_Aged','Senior_Citizen','Age_Not_Stated']] = df_temp.apply(lambda row :impute_missing_values(row['Population'],row['Young_and_Adult'],row['Middle_Aged'],row['Senior_Citizen'],row['Age_Not_Stated']),axis=1,result_type= 'expand')
-
-df_temp[['Non_Workers','Cultivator_Workers','Agricultural_Workers','Household_Workers','Other_Workers']] = df_temp.apply(lambda row :impute_missing_values2(row['Population'],row['Non_Workers'],row['Cultivator_Workers'],row['Agricultural_Workers'],row['Household_Workers'],row['Other_Workers']),axis=1,result_type= 'expand')
-
-df_temp[['Population','Hindus','Muslims','Christians','Sikhs','Buddhists','Jains','Others_Religions','Religion_Not_Stated']] = df_temp.apply(lambda row :impute_missing_values3(row['Population'],row['Hindus'],row['Muslims'],row['Christians'],row['Sikhs'],row['Buddhists'],row['Jains'],row['Others_Religions'],row['Religion_Not_Stated']),axis=1,result_type= 'expand')
-df_temp[['Literate_Education','Below_Primary_Education','Primary_Education','Middle_Education','Secondary_Education','Higher_Education','Graduate_Education','Other_Education']] = df_temp.apply(lambda row :impute_missing_values4(row['Literate_Education'],row['Below_Primary_Education'],row['Primary_Education'],row['Middle_Education'],row['Secondary_Education'],row['Higher_Education'],row['Graduate_Education'],row['Other_Education']),axis=1,result_type= 'expand')
-
+df_temp = df_temp.apply(fill_missing_values, axis=1)
 print(df_temp.isnull().sum(axis=0))
 #df_temp.to_csv("new.csv")

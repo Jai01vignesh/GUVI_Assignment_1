@@ -12,7 +12,8 @@ df_temp = pd.read_excel("census_2011.xlsx")
 
 
 #Task 1: Rename the Column names - using rename function
-renamed_col_dict ={'District code':'District_code',
+renamed_col_dict ={
+                   'District code':'District_code',
                    'State name': 'State/UT',
                    'District name': 'District',
                    'Male_Literate': 'Literate_Male',
@@ -22,7 +23,9 @@ renamed_col_dict ={'District code':'District_code',
                    'Age_Group_0_29': 'Young_and_Adult',
                    'Age_Group_30_49': 'Middle_Aged',
                    'Age_Group_50': 'Senior_Citizen',
-                   'Age not stated': 'Age_Not_Stated'}
+                   'Age not stated': 'Age_Not_Stated',
+                   'Married_couples_5__Households':'Married_couples_5_Households'
+                   }
 df_temp.rename(columns =renamed_col_dict,inplace=True)
 #-Ans print(df_temp.columns)
 
@@ -54,6 +57,8 @@ rename_state(df_temp)
 #-Ans print(df_temp['District'].loc[df_temp['State/UT'] .isin (['Ladakh','Telangana'])])
 print(df_temp.isnull().sum(axis=0).sum())
 #Task 4: Find and process Missing Data
+
+
 def fill_missing_values(df_temp):
     if df_temp['Population'] != df_temp['Population'] :
         if df_temp['Male'] == df_temp['Male'] and df_temp['Female'] == df_temp['Female']:
@@ -145,6 +150,35 @@ def fill_missing_values(df_temp):
     elif df_temp['Hindus'] == df_temp['Hindus']and df_temp['Muslims'] == df_temp['Muslims']and df_temp['Christians'] == df_temp['Christians'] and df_temp['Sikhs'] == df_temp['Sikhs'] and df_temp['Buddhists'] == df_temp['Buddhists'] and df_temp['Jains'] == df_temp['Jains']and df_temp['Religion_Not_Stated'] == df_temp['Religion_Not_Stated']:
          df_temp['Others_Religions'] =  df_temp['Population'] -df_temp['Hindus'] - df_temp['Muslims'] - df_temp['Christians'] - df_temp['Sikhs'] - df_temp['Buddhists'] - df_temp['Jains'] - df_temp['Religion_Not_Stated']
 
+    
+    if df_temp['Households'] != df_temp['Households'] :
+        if df_temp['Households_Rural'] == df_temp['Households_Rural'] and df_temp['Households_Urban'] == df_temp['Households_Urban'] :
+            df_temp['Households'] = df_temp['Households_Rural'] + df_temp['Households_Urban'] 
+    elif df_temp['Households_Rural'] != df_temp['Households_Rural'] and df_temp['Households_Urban'] == df_temp['Households_Urban'] and df_temp['Households'] == df_temp['Households'] :
+            df_temp['Households_Rural'] = df_temp['Households'] - df_temp['Households_Urban']
+    elif df_temp['Households_Urban'] != df_temp['Households_Urban'] and df_temp['Households_Rural'] == df_temp['Households_Rural'] and df_temp['Households'] == df_temp['Households'] :
+            df_temp['Households_Urban'] = df_temp['Households'] - df_temp['Households_Rural']
+    
+    
+    
+    if df_temp['Total_Education'] != df_temp['Total_Education'] and df_temp['Illiterate_Education'] == df_temp['Illiterate_Education']and df_temp['Literate_Education'] == df_temp['Literate_Education']:
+        df_temp['Total_Education'] = df_temp['Literate_Education'] + df_temp['Illiterate_Education']
+    elif df_temp['Illiterate_Education'] != df_temp['Illiterate_Education'] and df_temp['Total_Education'] == df_temp['Total_Education']and df_temp['Literate_Education'] == df_temp['Literate_Education']:
+        df_temp['Illiterate_Education'] = df_temp['Total_Education'] - df_temp['Literate_Education'] 
+    elif df_temp['Literate_Education'] != df_temp['Literate_Education'] and df_temp['Total_Education'] == df_temp['Total_Education']and df_temp['Illiterate_Education'] == df_temp['Illiterate_Education']:
+            df_temp['Literate_Education'] = df_temp['Total_Education'] - df_temp['Illiterate_Education'] 
+
+
+    if df_temp['Young_and_Adult'] != df_temp['Young_and_Adult'] and  df_temp['Population'] == df_temp['Population'] and df_temp['Middle_Aged'] == df_temp['Middle_Aged'] and df_temp['Senior_Citizen'] == df_temp['Senior_Citizen']and df_temp['Age_Not_Stated'] == df_temp['Age_Not_Stated']:
+        df_temp['Young_and_Adult'] = df_temp['Population'] - df_temp['Middle_Aged']- df_temp['Senior_Citizen']- df_temp['Age_Not_Stated']
+    elif df_temp['Senior_Citizen'] != df_temp['Senior_Citizen'] and  df_temp['Population'] == df_temp['Population'] and df_temp['Middle_Aged'] == df_temp['Middle_Aged'] and df_temp['Young_and_Adult'] == df_temp['Young_and_Adult']and df_temp['Age_Not_Stated'] == df_temp['Age_Not_Stated']:
+         df_temp['Senior_Citizen'] = df_temp['Population'] - df_temp['Middle_Aged']- df_temp['Young_and_Adult']- df_temp['Age_Not_Stated']
+    elif df_temp['Middle_Aged'] != df_temp['Middle_Aged'] and  df_temp['Population'] == df_temp['Population'] and df_temp['Young_and_Adult'] == df_temp['Young_and_Adult'] and df_temp['Senior_Citizen'] == df_temp['Senior_Citizen']and df_temp['Age_Not_Stated'] == df_temp['Age_Not_Stated']:
+             df_temp['Middle_Aged'] = df_temp['Population'] - df_temp['Young_and_Adult']- df_temp['Senior_Citizen']- df_temp['Age_Not_Stated']
+    elif df_temp['Age_Not_Stated'] != df_temp['Age_Not_Stated'] and  df_temp['Population'] == df_temp['Population'] and df_temp['Young_and_Adult'] == df_temp['Young_and_Adult'] and df_temp['Senior_Citizen'] == df_temp['Senior_Citizen']and df_temp['Middle_Aged'] == df_temp['Middle_Aged']:
+             df_temp['Age_Not_Stated'] = df_temp['Population'] - df_temp['Young_and_Adult']- df_temp['Senior_Citizen']- df_temp['Middle_Aged']
+
+
     if df_temp['Households_with_Telephone_Mobile_Phone'] != df_temp['Households_with_Telephone_Mobile_Phone'] :
         if df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Both'] == df_temp['Households_with_Telephone_Mobile_Phone_Both']:
             df_temp['Households_with_Telephone_Mobile_Phone'] = df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] + df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] + df_temp['Households_with_Telephone_Mobile_Phone_Both']
@@ -159,17 +193,56 @@ def fill_missing_values(df_temp):
          if df_temp['Households_with_Telephone_Mobile_Phone'] == df_temp['Households_with_Telephone_Mobile_Phone'] and df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Mobile_only'] and df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] == df_temp['Households_with_Telephone_Mobile_Phone_Landline_only']:
             df_temp['Households_with_Telephone_Mobile_Phone_Both'] = df_temp['Households_with_Telephone_Mobile_Phone'] - df_temp['Households_with_Telephone_Mobile_Phone_Landline_only'] -df_temp['Households_with_Telephone_Mobile_Phone_Landline_only']
     
-    if df_temp['Total_Education'] != df_temp['Total_Education'] and df_temp['Illiterate_Education'] == df_temp['Illiterate_Education']and df_temp['Literate_Education'] == df_temp['Literate_Education']:
-        df_temp['Total_Education'] = df_temp['Literate_Education'] + df_temp['Illiterate_Education']
-    elif df_temp['Illiterate_Education'] != df_temp['Illiterate_Education'] and df_temp['Total_Education'] == df_temp['Total_Education']and df_temp['Literate_Education'] == df_temp['Literate_Education']:
-        df_temp['Illiterate_Education'] = df_temp['Total_Education'] - df_temp['Literate_Education'] 
-    elif df_temp['Literate_Education'] != df_temp['Literate_Education'] and df_temp['Total_Education'] == df_temp['Total_Education']and df_temp['Illiterate_Education'] == df_temp['Illiterate_Education']:
-            df_temp['Literate_Education'] = df_temp['Total_Education'] - df_temp['Illiterate_Education'] 
+
+    if df_temp['Household_size_1_to_2_persons'] != df_temp['Household_size_1_to_2_persons'] and df_temp['Household_size_2_persons_Households'] == df_temp['Household_size_2_persons_Households'] and df_temp['Household_size_1_person_Households'] == df_temp['Household_size_1_person_Households'] :
+            df_temp['Household_size_1_to_2_persons'] = df_temp['Household_size_1_person_Households'] + df_temp['Household_size_2_persons_Households']
+    elif df_temp['Household_size_1_person_Households'] != df_temp['Household_size_1_person_Households'] and df_temp['Household_size_2_persons_Households'] == df_temp['Household_size_2_persons_Households'] :
+            df_temp['Household_size_1_person_Households'] = df_temp['Household_size_1_to_2_persons'] - df_temp['Household_size_2_persons_Households']
+    elif df_temp['Household_size_2_persons_Households'] != df_temp['Household_size_2_persons_Households'] and df_temp['Household_size_1_person_Households'] == df_temp['Household_size_1_person_Households'] :
+            df_temp['Household_size_2_persons_Households'] = df_temp['Household_size_1_to_2_persons'] - df_temp['Household_size_1_person_Households']
+
+    if df_temp['Household_size_3_to_5_persons_Households'] != df_temp['Household_size_3_to_5_persons_Households'] :
+           df_temp['Household_size_3_to_5_persons_Households'] = df_temp['Household_size_3_persons_Households'] + df_temp['Household_size_4_persons_Households'] + df_temp['Household_size_5_persons_Households']
+    elif df_temp['Household_size_3_persons_Households'] != df_temp['Household_size_3_persons_Households'] and df_temp['Household_size_3_to_5_persons_Households'] == df_temp['Household_size_3_to_5_persons_Households'] and df_temp['Household_size_4_persons_Households'] == df_temp['Household_size_4_persons_Households'] and df_temp['Household_size_5_persons_Households'] == df_temp['Household_size_5_persons_Households']:
+            df_temp['Household_size_3_persons_Households'] = df_temp['Household_size_3_to_5_persons_Households'] - df_temp['Household_size_4_persons_Households'] - df_temp['Household_size_5_persons_Households']
+    elif df_temp['Household_size_4_persons_Households'] != df_temp['Household_size_4_persons_Households'] and df_temp['Household_size_3_to_5_persons_Households'] == df_temp['Household_size_3_to_5_persons_Households'] and df_temp['Household_size_3_persons_Households'] == df_temp['Household_size_3_persons_Households'] and df_temp['Household_size_5_persons_Households'] == df_temp['Household_size_5_persons_Households'] :
+            df_temp['Household_size_4_persons_Households'] = df_temp['Household_size_3_to_5_persons_Households'] - df_temp['Household_size_3_persons_Households'] - df_temp['Household_size_5_persons_Households']
+    elif df_temp['Household_size_5_persons_Households'] != df_temp['Household_size_5_persons_Households'] and df_temp['Household_size_3_to_5_persons_Households'] == df_temp['Household_size_3_to_5_persons_Households'] and df_temp['Household_size_3_persons_Households'] == df_temp['Household_size_3_persons_Households'] and df_temp['Household_size_4_persons_Households'] == df_temp['Household_size_4_persons_Households'] :
+            df_temp['Household_size_5_persons_Households'] = df_temp['Household_size_3_to_5_persons_Households'] - df_temp['Household_size_3_persons_Households'] - df_temp['Household_size_4_persons_Households']
+    
+    #if df_temp['Household_size_6_8_persons_Households'] != df_temp['Household_size_6_8_persons_Households'] and df_temp['Household_size_1_to_2_persons'] == df_temp['Household_size_1_to_2_persons'] and df_temp['Household_size_3_to_5_persons_Households'] == df_temp['Household_size_3_to_5_persons_Households'] and df_temp['Household_size_9_persons_and_above_Households'] == df_temp['Household_size_9_persons_and_above_Households'] :
+    #        df_temp['Household_size_6_8_persons_Households'] = df_temp['Household_size_1_to_2_persons'] - df_temp['Household_size_3_to_5_persons_Households'] - df_temp['Household_size_9_persons_and_above_Households']
+    #if df_temp['Household_size_9_persons_and_above_Households'] != df_temp['Household_size_9_persons_and_above_Households']:         
+    #    df_temp['Household_size_9_persons_and_above_Households'] = df_temp['Household_size_1_to_2_persons'] - df_temp['Household_size_3_to_5_persons_Households'] - df_temp['Household_size_6_8_persons_Households']
+   
+    if df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households'] != df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households']and df_temp['Main_source_of_drinking_water_Spring_Households'] == df_temp['Main_source_of_drinking_water_Spring_Households'] and df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] == df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] and df_temp['Main_source_of_drinking_water_River_Canal_Households'] == df_temp['Main_source_of_drinking_water_River_Canal_Households'] and df_temp['Main_source_of_drinking_water_Other_sources_Households'] == df_temp['Main_source_of_drinking_water_Other_sources_Households']:
+        df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households'] = df_temp['Main_source_of_drinking_water_Other_sources_Households'] + df_temp['Main_source_of_drinking_water_Spring_Households'] + df_temp['Main_source_of_drinking_water_River_Canal_Households'] + df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households']
+    elif df_temp['Main_source_of_drinking_water_Spring_Households'] != df_temp['Main_source_of_drinking_water_Spring_Households'] and df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] == df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] and df_temp['Main_source_of_drinking_water_River_Canal_Households'] == df_temp['Main_source_of_drinking_water_River_Canal_Households'] and df_temp['Main_source_of_drinking_water_Other_sources_Households'] == df_temp['Main_source_of_drinking_water_Other_sources_Households']:
+        df_temp['Main_source_of_drinking_water_Spring_Households'] = df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households'] - df_temp['Main_source_of_drinking_water_Other_sources_Households'] - df_temp['Main_source_of_drinking_water_River_Canal_Households'] - df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households']
+    elif df_temp['Main_source_of_drinking_water_River_Canal_Households'] != df_temp['Main_source_of_drinking_water_River_Canal_Households'] and df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] == df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] and df_temp['Main_source_of_drinking_water_Spring_Households'] == df_temp['Main_source_of_drinking_water_Spring_Households'] and df_temp['Main_source_of_drinking_water_Other_sources_Households'] == df_temp['Main_source_of_drinking_water_Other_sources_Households']:
+        df_temp['Main_source_of_drinking_water_River_Canal_Households'] = df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households'] - df_temp['Main_source_of_drinking_water_Other_sources_Households'] - df_temp['Main_source_of_drinking_water_Spring_Households'] - df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households']
+    elif df_temp['Main_source_of_drinking_water_Other_sources_Households'] != df_temp['Main_source_of_drinking_water_Other_sources_Households'] and df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] == df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] and df_temp['Main_source_of_drinking_water_River_Canal_Households'] == df_temp['Main_source_of_drinking_water_River_Canal_Households'] and df_temp['Main_source_of_drinking_water_Spring_Households'] == df_temp['Main_source_of_drinking_water_Spring_Households']:
+        df_temp['Main_source_of_drinking_water_Other_sources_Households'] = df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households'] - df_temp['Main_source_of_drinking_water_Spring_Households'] - df_temp['Main_source_of_drinking_water_River_Canal_Households'] - df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households']
+    elif df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] != df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] and df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] == df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] and df_temp['Main_source_of_drinking_water_Other_sources_Households'] == df_temp['Main_source_of_drinking_water_Other_sources_Households'] and df_temp['Main_source_of_drinking_water_Spring_Households'] == df_temp['Main_source_of_drinking_water_Spring_Households']:
+        df_temp['Main_source_of_drinking_water_Tank_Pond_Lake_Households'] = df_temp['Main_source_of_drinking_water_Other_sources_Spring_River_Canal_Tank_Pond_Lake_Other_sources__Households'] - df_temp['Main_source_of_drinking_water_Spring_Households'] - df_temp['Main_source_of_drinking_water_River_Canal_Households'] - df_temp['Main_source_of_drinking_water_Other_sources_Households']
 
 
+
+
+    if df_temp['Married_couples_3_or_more_Households'] != df_temp['Married_couples_3_or_more_Households'] :
+        df_temp['Married_couples_3_or_more_Households'] = df_temp['Married_couples_3_Households'] + df_temp['Married_couples_4_Households'] + df_temp['Married_couples_5_Households']
+    elif df_temp['Married_couples_3_Households'] != df_temp['Married_couples_3_Households'] and df_temp['Married_couples_4_Households'] == df_temp['Married_couples_4_Households'] and df_temp['Married_couples_5_Households'] == df_temp['Married_couples_5_Households']:
+        df_temp['Married_couples_3_Households'] = df_temp['Married_couples_3_or_more_Households'] - df_temp['Married_couples_4_Households'] - df_temp['Married_couples_5_Households']
+    elif df_temp['Married_couples_4_Households'] != df_temp['Married_couples_3_Households'] and df_temp['Married_couples_3_Households'] == df_temp['Married_couples_3_Households'] and df_temp['Married_couples_5_Households'] == df_temp['Married_couples_5_Households']:
+        df_temp['Married_couples_4_Households'] = df_temp['Married_couples_3_or_more_Households'] - df_temp['Married_couples_3_Households'] - df_temp['Married_couples_5_Households']
+    elif df_temp['Married_couples_5_Households'] != df_temp['Married_couples_3_Households'] and df_temp['Married_couples_3_Households'] == df_temp['Married_couples_3_Households'] and df_temp['Married_couples_4_Households'] == df_temp['Married_couples_4_Households']:
+        df_temp['Married_couples_5_Households'] = df_temp['Married_couples_3_or_more_Households'] - df_temp['Married_couples_3_Households'] - df_temp['Married_couples_4_Households']
+    
+    
+    
     return df_temp
 
 
 df_temp = df_temp.apply(fill_missing_values, axis=1)
-print(df_temp.isnull().sum(axis=0))
+print(df_temp.isnull().sum(axis=0).sum())
 #df_temp.to_csv("new.csv")

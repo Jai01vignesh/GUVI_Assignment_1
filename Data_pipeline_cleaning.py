@@ -1,6 +1,8 @@
 # importing dependencies
 import pandas as pd
 import docx2txt
+from pymongo import MongoClient
+from sqlalchemy import create_engine
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -245,4 +247,35 @@ def fill_missing_values(df_temp):
 
 df_temp = df_temp.apply(fill_missing_values, axis=1)
 print(df_temp.isnull().sum(axis=0).sum())
-#df_temp.to_csv("new.csv")
+#df_temp.to_csv("new.csv",index=False)
+
+
+
+
+#Task-5 MONGODB
+
+Connection_string = MongoClient("mongodb+srv://jaivigneshpris:x1!zh5>Qhc4NXd{t@census2011.uu8axpz.mongodb.net/?retryWrites=true&w=majority&appName=census2011")
+
+try:
+    Connection_string.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
+db = Connection_string.guvi_census_data
+clctn = db.census
+
+#converting dataframe to dictionary
+
+#df_dict =df_temp.to_dict('records')
+#clctn.insert_many(df_dict)
+lst =[]
+for i in clctn.find((),{"_id":0}):
+     lst.append(i)
+
+df_mongo = pd.DataFrame(lst)
+df_mongo.to_csv("mongo_csv.csv")
+
+#Transferring data to postgreesql from mongodb
+#connection = create_engine("postgresql://postgres:qweaszx@localhost:5432/guvi_practice")
+#df_mongo.to_sql("census",con = connection)

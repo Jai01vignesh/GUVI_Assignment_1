@@ -2,7 +2,7 @@
 import pandas as pd
 import docx2txt
 from pymongo import MongoClient
-from sqlalchemy import create_engine,text
+from sqlalchemy import create_engine,text,inspect
 from sqlalchemy.types import Integer,VARCHAR
 import streamlit as st
 import plotly.express as px
@@ -258,25 +258,30 @@ df_temp.fillna(0, inplace =True)
 df_dict =df_temp.to_dict('records')
 
 #Mongo db connection
-Connection_string = MongoClient("mongodb+srv://jaivigneshpris:x1!zh5>Qhc4NXd{t@census2011.uu8axpz.mongodb.net/?retryWrites=true&w=majority&appName=census2011")
+def mongo():
+    Connection_string = MongoClient("mongodb+srv://jaivigneshpris:x1!zh5>Qhc4NXd{t@census2011.uu8axpz.mongodb.net/?retryWrites=true&w=majority&appName=census2011")
 
-try:
-    Connection_string.admin.command('ping')
-    db = Connection_string.guvi_census_data
-    clctn = db.census
-    clctn.insert_many(df_dict) #pushing dictionary data into the census  collection
-except Exception as e:
-    print(e)
-
+    try:
+        Connection_string.admin.command('ping')
+        db = Connection_string.guvi_census_data
+        clctn = db.census
+        list_of_collections = db.list_collection_names()  # Return a list of collections in 'guvi_census_data'
+        if "census" in list_of_collections :
+           clctn.drop() 
+        clctn.insert_many(df_dict) #pushing dictionary data into the census  collection
+    except Exception as e:
+        print(e)
 
 #Task 6: Database connection and data upload
-
 #Getting records from mongo db and parsing them to postgresql engine by appending in a list
-df_lst = []
-for i in clctn.find((),{"_id":0}):
-     df_lst.append(i)
+    df_lst = []
+    for i in clctn.find((),{"_id":0}):
+        df_lst.append(i)
 
-df_mongo = pd.DataFrame(df_lst) #converting the appended list to a dataframe
+    df_mongo = pd.DataFrame(df_lst) #converting the appended list to a dataframe
+    return df_mongo
+
+df_mongo = mongo()  #Function call to create mongo collection and dataframe creation from the values fetched from that collection
 
 def sqlcol(df_mongo):    
     
@@ -290,13 +295,15 @@ def sqlcol(df_mongo):
 
     return type_df
 
-op_dtype = sqlcol(df_mongo) 
+op_dtype = sqlcol(df_mongo) #Function call to convert the data types
 
 connection = create_engine("postgresql://postgres:qweaszx@localhost:5432/guvi_census") #Postgresql connection - dbname://userid:password@hostname:portnumber/databasename
-df_mongo.to_sql("census", con = connection, if_exists='replace',
-                 index =False,dtype = op_dtype) # pushing data from mongo dataframe to postgree table census , rows will be replaced if the table already exists
-with connection.connect() as conn:
-     conn.execute(text('ALTER TABLE census ADD PRIMARY KEY("District_code");'))
+tab = inspect(connection)
+if tab.has_table("census") == False:
+    df_mongo.to_sql("census", con = connection, if_exists='replace',
+                    index =False,dtype = op_dtype) # pushing data from mongo dataframe to postgree table census , rows will be replaced if the table already exists
+    with connection.connect() as conn:
+        conn.execute(text('ALTER TABLE census ADD PRIMARY KEY("District_code");'))
 
 #Task 7: Run Query on the database and show output on streamlit
 st.set_page_config(page_title="Census-2011 Dashboard", page_icon="Active",layout = "wide" ) #setting the pagetitle and layout to be wide
@@ -539,5 +546,5 @@ plot_scatter(SQL_Query23,"Transport distribution District-wise","District",y_ax7
 Y_axis7 =st.selectbox("Condition of occupied census houses District-wise",["All","Dilapidated", "Seperate Kitchen","Bathing Facility", "Laterine_within_premisis","Laterine_outside_premisis_Alternate_sources"],
                       index = 0)
 y_ax8 = select_box(Y_axis7, ["Dilapidated", "Seperate Kitchen","Bathing Facility","Laterine_within_premisis", "Laterine_outside_premisis_Alternate_sources"])
-plot_scatter(SQL_Query24,"Transport distribution District-wisee","District",y_ax8,
+plot_scatter(SQL_Query24,"Distribution of Occupied Cenus Households","District",y_ax8,
              "Types of houses","Types of houses")

@@ -248,26 +248,24 @@ def fill_missing_values(df_temp):
 
     return df_temp
 
-print(df_temp.isnull().sum(axis=0).sum())
-df_temp = df_temp.apply(fill_missing_values, axis=1)
+print(df_temp.isnull().sum(axis=0).sum()) 
+df_temp = df_temp.apply(fill_missing_values, axis=1) #imputing empty values  with 0
 df_temp.fillna(0, inplace =True)
 
 #Task-5 Save Data to MongoDB
+df_dict =df_temp.to_dict('records')
 
+#Mongo db connection
 Connection_string = MongoClient("mongodb+srv://jaivigneshpris:x1!zh5>Qhc4NXd{t@census2011.uu8axpz.mongodb.net/?retryWrites=true&w=majority&appName=census2011")
 
 try:
     Connection_string.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
     db = Connection_string.guvi_census_data
     clctn = db.census
+    clctn.insert_many(df_dict) #pushing dictionary data into the census  collection
 except Exception as e:
     print(e)
 
-#converting dataframe to dictionary
-
-df_dict =df_temp.to_dict('records')
-clctn.insert_many(df_dict)
 
 #Task 6: Database connection and data upload
 
@@ -279,7 +277,8 @@ for i in clctn.find((),{"_id":0}):
 df_mongo = pd.DataFrame(lst) #converting the appended list to a dataframe
 
 connection = create_engine("postgresql://postgres:qweaszx@localhost:5432/guvi_practice") #Postgresql connection - dbname://userid:password@hostname:portnumber/databasename
-df_mongo.to_sql("census",con = connection,if_exists='replace') # pushing data from mongo dataframe to postgree table census , rows will be replaced if the table already exists
+df_mongo.to_sql("census", con = connection, if_exists='replace',
+                index = False,dtype={'District_code': 'INTEGER PRIMARY KEY'}) # pushing data from mongo dataframe to postgree table census , rows will be replaced if the table already exists
  
 
 #Task 7: Run Query on the database and show output on streamlit

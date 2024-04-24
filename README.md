@@ -7,7 +7,7 @@ Presentation file - Census 2011.pptx
 
 
 
-Dependencies installed:
+Dependencies installed: - pip install -r requirements.txt
 pandas
 doc2txt
 openpyxl

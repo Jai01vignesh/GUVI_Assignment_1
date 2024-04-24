@@ -6,6 +6,7 @@ from sqlalchemy import create_engine,text,inspect
 from sqlalchemy.types import Integer,VARCHAR
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -72,7 +73,7 @@ rename_duplicated_districts(df_temp)
 
 #Task 4: Find and process Missing Data
 print(df_temp.isnull().sum(axis=0).sum())
-
+before = (df_temp.isnull().sum()/ len(df_temp))*100
 def fill_missing_values(df_temp):
     if df_temp['Population'] != df_temp['Population'] :
         if df_temp['Male'] == df_temp['Male'] and df_temp['Female'] == df_temp['Female']:
@@ -252,6 +253,7 @@ def fill_missing_values(df_temp):
 
 df_temp = df_temp.apply(fill_missing_values, axis=1) #imputing empty values  with 0
 print(df_temp.isnull().sum(axis=0).sum()) 
+after = (df_temp.isnull().sum()/ len(df_temp))*100
 df_temp.fillna(0, inplace =True)
 
 #Task-5 Save Data to MongoDB
@@ -320,7 +322,8 @@ def plot(SQL_Query,Sub_header,X,Y):
     st.subheader(Sub_header)
     fig = px.bar(SQL_Query, x = X, y = Y, text = ['{:,.2f}'.format(x) for x in SQL_Query[Y]],
                 template = "seaborn")
-    st.plotly_chart(fig,use_container_width=True, height = 200)
+    fig.update_layout(xaxis_autorange = True,yaxis_autorange = True) 
+    st.plotly_chart(fig,use_container_width=True, height = 800)
 
 def plot_scatter(SQL_Query,Sub_header,X,Y,X_name,Y_name):
     st.subheader(Sub_header)
@@ -347,13 +350,18 @@ def plot1(SQL_Query,Sub_header,X,Y):
 
 def chart(SQL_Query,Sub_header,X,Y):
     st.subheader(Sub_header)
-    fig = px.pie(SQL_Query, values=X, names=Y, color_discrete_sequence=px.colors.sequential.RdBu)
-    st.plotly_chart(fig,use_container_width=True, height = 200)
+    #fig = px.pie(SQL_Query, values=X, names=Y, color_discrete_sequence=px.colors.sequential.RdBu)
+    fig = px.pie(SQL_Query, values=X, names=Y)
+    fig.update_traces(textinfo='value')
+    st.plotly_chart(fig,use_container_width=True, height = 600)
 
 
 col1,col2,col3,col4,col5,col6 = st.columns(6)  #Splitting columns into 6 to display multiple metric values like Population , Male, Female etc
 
 #What is the total population of each district?
+SQL_Query0 = pd.read_sql('select "District", sum("Population") as "Population"  from census group by "District" order by "Population" desc;', 
+                         connection)
+
 SQL_Query1 = pd.read_sql('select sum("Population") as "Population"  from census where "State/UT" = %(name)s group by "State/UT" ', 
                          connection,params={'name' :State_filter })
 
@@ -380,7 +388,7 @@ SQL_Query6 = pd.read_sql('select "District","Literate_Female"  from census order
 
 
 #What is the percentage of workers (both male and female) in each district?
-SQL_Query7 = pd.read_sql('select "District",("Male_Workers"/"Workers")*100 as "Male Worker",("Female_Workers"/"Workers")*100 as "Female Worker" from census order by "District";', 
+SQL_Query7 = pd.read_sql('select "District",("Male_Workers"/"Workers")*100 as "Male Worker",("Female_Workers"/"Workers")*100 as "Female Worker" from census ;', 
                          connection)
 
 #How many households have access to LPG or PNG as a cooking fuel in each district?
@@ -440,7 +448,7 @@ SQL_Query21 = pd.read_sql('select "State/UT",sum("Power_Parity_Less_than_Rs_4500
                           connection)
 
 #What is the overall literacy rate (percentage of literate population) in each state?
-SQL_Query22 = pd.read_sql('select "State/UT",sum("Literate")/sum("Population") as "Literacy Rate"  from census group by "State/UT" order by "Literacy Rate";', 
+SQL_Query22 = pd.read_sql('select "State/UT",(sum("Literate")/sum("Population"))*100 as "Literacy Rate"  from census group by "State/UT" order by "Literacy Rate";', 
                           connection)
 
 #How many households have access to various modes of transportation (bicycle, car, radio, television, etc.) in each district?
@@ -491,9 +499,9 @@ with col6:
  #selectbox - Select box values, Y axis columns
  #chart - Query, Sub header, X column, Y column
 
-
-plot(SQL_Query7,"Male Workers per District","District","Male Worker")   
-plot(SQL_Query7,"Female Workers per District","District","Female Worker") 
+plot(SQL_Query0,"Population per District","District","Population")  
+#plot(SQL_Query7,"Male Workers per District","District","Male Worker")   
+#plot(SQL_Query7,"Female Workers per District","District","Female Worker") 
 plot(SQL_Query8,"LPG/PNG as Cooking Fuel","District","LPG_or_PNG_Households")
 Y_axis0=st.selectbox("Workers'%'",["All","Male Worker","Female Worker"],index = 0)
 y_ax0 = select_box(Y_axis0, ["Male Worker","Female Worker"])
@@ -520,7 +528,7 @@ Y_axis2=st.selectbox("Average Household Size",["All","1-Person","2-Persons","3-P
 y_ax3 = select_box(Y_axis2, ["1-Person","2-Persons","3-Persons","4-Persons","5-Persons","6to8-Persons","9 and more Persons"])
 plot_scatter(SQL_Query15,"Average Household Size in each State/UT","State/UT",y_ax3,
              "Household size","Household size")
-#area_box(SQL_Query16,"State-wise Owned Houses vs Rented Houses","Owned","Rented")
+#area_box(SQL_Query16,"State-wise Owned Houses vs Rented Houses","State/UT",["Rented","Owned"])
 plot1(SQL_Query16,"State-wise Owned Houses vs Rented Houses","State/UT",["Owned","Rented"])
 Y_axis3=st.selectbox("Different Type of Laterines",["All","Pit Laterine","Other Laterine","Night Soil","Flush"],
                      index = 0)
@@ -548,3 +556,10 @@ Y_axis7 =st.selectbox("Condition of occupied census houses District-wise",["All"
 y_ax8 = select_box(Y_axis7, ["Dilapidated", "Seperate Kitchen","Bathing Facility","Laterine_within_premisis", "Laterine_outside_premisis_Alternate_sources"])
 plot_scatter(SQL_Query24,"Distribution of Occupied Cenus Households","District",y_ax8,
              "Types of houses","Types of houses")
+
+
+
+fig = go.Figure(data=[go.Table(header=dict(values=['Columns', 'Before Cleaning','After Cleaning']),
+                 cells=dict(values=[before.index, ['{:,.0f}'.format(x) for x in before.values],['{:,.0f}'.format(x) for x in after.values]],height=25))
+                     ])
+st.plotly_chart(fig,use_container_width=True, height = 400)

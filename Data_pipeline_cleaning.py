@@ -2,7 +2,8 @@
 import pandas as pd
 import docx2txt
 from pymongo import MongoClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine,text
+from sqlalchemy.types import Integer,VARCHAR
 import streamlit as st
 import plotly.express as px
 
@@ -54,7 +55,7 @@ df_temp["District"] = df_temp["District"].apply(rename_col)
 
 my_text = docx2txt.process("Telangana.docx")
 
-lst =df_temp["District name"][df_temp["District name"].duplicated() == True].to_list()
+lst =df_temp["District"][df_temp["District"].duplicated() == True].to_list()
 
 def rename_state(df_temp):
     for nme in my_text.split():
@@ -63,7 +64,7 @@ def rename_state(df_temp):
 
 def rename_duplicated_districts(df_temp):
     for nme in lst:
-        df_temp.loc[df_temp['District name'] == nme, 'District name'] = nme + " ("+ df_temp.loc[df_temp['District name'] == nme]['State name']  +")"
+        df_temp.loc[df_temp['District'] == nme, 'District'] = nme + " ("+ df_temp.loc[df_temp['District'] == nme]['State/UT']  +")"
 
 rename_state(df_temp)
 rename_duplicated_districts(df_temp)
@@ -248,8 +249,9 @@ def fill_missing_values(df_temp):
 
     return df_temp
 
-print(df_temp.isnull().sum(axis=0).sum()) 
+
 df_temp = df_temp.apply(fill_missing_values, axis=1) #imputing empty values  with 0
+print(df_temp.isnull().sum(axis=0).sum()) 
 df_temp.fillna(0, inplace =True)
 
 #Task-5 Save Data to MongoDB
@@ -270,16 +272,31 @@ except Exception as e:
 #Task 6: Database connection and data upload
 
 #Getting records from mongo db and parsing them to postgresql engine by appending in a list
-lst =[]
+df_lst = []
 for i in clctn.find((),{"_id":0}):
-     lst.append(i)
+     df_lst.append(i)
 
-df_mongo = pd.DataFrame(lst) #converting the appended list to a dataframe
+df_mongo = pd.DataFrame(df_lst) #converting the appended list to a dataframe
 
-connection = create_engine("postgresql://postgres:qweaszx@localhost:5432/guvi_practice") #Postgresql connection - dbname://userid:password@hostname:portnumber/databasename
+def sqlcol(df_mongo):    
+    
+    type_df = {}
+    for i,j in zip(df_mongo.columns, df_mongo.dtypes):
+        if "object" in str(j):
+            type_df.update({i: VARCHAR(length=50)})
+
+        if "int" in str(j):
+            type_df.update({i: Integer})
+
+    return type_df
+
+op_dtype = sqlcol(df_mongo) 
+
+connection = create_engine("postgresql://postgres:qweaszx@localhost:5432/guvi_census") #Postgresql connection - dbname://userid:password@hostname:portnumber/databasename
 df_mongo.to_sql("census", con = connection, if_exists='replace',
-                index = False,dtype={'District_code': 'INTEGER PRIMARY KEY'}) # pushing data from mongo dataframe to postgree table census , rows will be replaced if the table already exists
- 
+                 index =False,dtype = op_dtype) # pushing data from mongo dataframe to postgree table census , rows will be replaced if the table already exists
+with connection.connect() as conn:
+     conn.execute(text('ALTER TABLE census ADD PRIMARY KEY("District_code");'))
 
 #Task 7: Run Query on the database and show output on streamlit
 st.set_page_config(page_title="Census-2011 Dashboard", page_icon="Active",layout = "wide" ) #setting the pagetitle and layout to be wide
@@ -429,13 +446,14 @@ SQL_Query24 = pd.read_sql('select "District","Condition_of_occupied_census_house
 
 
 with col1:
-    st.metric(label = "Population", value = SQL_Query1.values)
+    st.metric(label = "Population", value =  ['{:,.0f}'.format(x) for x in SQL_Query1.values[0]][0])
 
 with col2:
-    st.metric(label= "District-wise Population", value = SQL_Query2.values)
+    st.metric(label= "District-wise Population", value =  ['{:,.0f}'.format(x) for x in SQL_Query2.values[0]][0])
 
 with col3:
-    st.metric(label = "Literate Male", value = SQL_Query3.values)
+    st.metric(label = "Literate Male", value = ['{:,.0f}'.format(x) for x in SQL_Query3.values[0]][0])
+    
 st.subheader("Literate Male per District")
 fig = px.bar(SQL_Query5, x = "District", y = "Literate_Male", 
              text = ['{:,.2f}'.format(x) for x in SQL_Query5["Literate_Male"]],
@@ -443,7 +461,7 @@ fig = px.bar(SQL_Query5, x = "District", y = "Literate_Male",
 st.plotly_chart(fig,use_container_width=True, height = 200)
 
 with col4:
-    st.metric(label= "Literate Female", value = SQL_Query4.values)
+    st.metric(label= "Literate Female", value = ['{:,.0f}'.format(x) for x in SQL_Query4.values[0]][0])
 st.subheader("Literate Female per District")
 fig = px.bar(SQL_Query6, x = "District", y = "Literate_Female", 
              text = ['{:,.2f}'.format(x) for x in SQL_Query6["Literate_Female"]],
@@ -452,12 +470,12 @@ st.plotly_chart(fig,use_container_width=True, height = 200)
 
 
 with col5:
-    st.metric(label= "Male Workers %", value = SQL_Query_male_percent.values)
+    st.metric(label= "Male Workers %", value = ['{:,.0f}'.format(x) for x in SQL_Query_male_percent.values[0]][0])
 
 
 with col6:
     #st.metric(label= "Female Workers %", value = SQL_Query_female_percent.values)
-    st.metric(label= "Female Workers %", value = ['{:,.2f}'.format(x) for x in SQL_Query_female_percent.values])
+    st.metric(label= "Female Workers %", value =  ['{:,.0f}'.format(x) for x in SQL_Query_female_percent.values[0]][0])
 
 
 #Function call to plot Bar, Scatter plots etc
@@ -470,6 +488,9 @@ with col6:
 plot(SQL_Query7,"Male Workers per District","District","Male Worker")   
 plot(SQL_Query7,"Female Workers per District","District","Female Worker") 
 plot(SQL_Query8,"LPG/PNG as Cooking Fuel","District","LPG_or_PNG_Households")
+Y_axis0=st.selectbox("Workers'%'",["All","Male Worker","Female Worker"],index = 0)
+y_ax0 = select_box(Y_axis0, ["Male Worker","Female Worker"])
+plot_scatter(SQL_Query7,"Male/Female workers% District-wise","District",y_ax0,"Workers%","Workers")
 Y_axis=st.selectbox("Religion",["All","Hindus","Muslims","Christians","Sikhs","Buddhists","Jains","Others_Religions","Religion_Not_Stated"],
                     index = 0)
 y_ax = select_box(Y_axis, ["Hindus","Muslims","Christians","Sikhs","Buddhists","Jains","Others_Religions","Religion_Not_Stated"])
